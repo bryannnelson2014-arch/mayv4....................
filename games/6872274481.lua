@@ -7381,153 +7381,166 @@ run(function()
 		return false
 	end
 																																																																																																										
-	Breaker = vape.Categories.Utility:CreateModule({
-		Name = 'Breaker',
-		Function = function(callback)
-			if callback then
-				for _ = 1, 30 do
-					local part = Instance.new('Part')
-					part.Anchored = true
-					part.CanQuery = false
-					part.CanCollide = false
-					part.Transparency = 1
-					part.Parent = gameCamera
-					local highlight = Instance.new('BoxHandleAdornment')
-					highlight.Size = Vector3.one
-					highlight.AlwaysOnTop = true
-					highlight.ZIndex = 1
-					highlight.Transparency = 0.5
-					highlight.Adornee = part
-					highlight.Parent = part
-					table.insert(parts, part)
-				end
-	
-				local beds = collection('bed', Breaker)
-				local luckyblock = collection('LuckyBlock', Breaker)
-				local ironores = collection('iron-ore', Breaker)
-				customlist = collection('block', Breaker, function(tab, obj)
-					if table.find(Custom.ListEnabled, obj.Name) then
-						table.insert(tab, obj)
-					end
-				end)
-	
-				Breaker:Clean(runService.PreSimulation:Connect(function(dt)
-					if AutoAim.Enabled and targetting then
-						gameCamera.CFrame = gameCamera.CFrame:Lerp(CFrame.lookAt(gameCamera.CFrame.p, targetting), AimSpeed.Value * dt)
-					end
-				end))
+	run(function()
+	local Nuker = {Enabled = false}
+	local nukerrange = {Value = 1}
+	local nukereffects = {Enabled = false}
+	local nukeranimation = {Enabled = false}
+	local nukernofly = {Enabled = false}
+	local nukerlegit = {Enabled = false}
+	local nukerown = {Enabled = false}
+    local nukerluckyblock = {Enabled = false}
+	local nukerironore = {Enabled = false}
+    local nukerbeds = {Enabled = false}
+	local nukercustom = {RefreshValues = function() end, ObjectList = {}}
+    local luckyblocktable = {}
 
-				repeat
-					task.wait(1 / UpdateRate.Value)
-					if not Breaker.Enabled then break end
-					if entitylib.isAlive then
-						local localPosition = entitylib.character.RootPart.Position
-	
-						if attemptBreak(Bed.Enabled and beds, localPosition) then continue end
-						if attemptBreak(customlist, localPosition) then continue end
-						if attemptBreak(LuckyBlock.Enabled and luckyblock, localPosition) then continue end
-						if attemptBreak(IronOre.Enabled and ironores, localPosition) then continue end
-	
-						for _, v in parts do
-							v.Position = Vector3.zero
-						end
+	Nuker = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+		Name = "Nuker",
+		Function = function(callback)
+            if callback then
+				for i,v in pairs(store.blocks) do
+					if table.find(nukercustom.ObjectList, v.Name) or (nukerluckyblock.Enabled and v.Name:find("lucky")) or (nukerironore.Enabled and v.Name == "iron_ore") then
+						table.insert(luckyblocktable, v)
 					end
-				until not Breaker.Enabled
-			else
-				for _, v in parts do
-					v:ClearAllChildren()
-					v:Destroy()
 				end
-				table.clear(parts)
-			end
+				table.insert(Nuker.Connections, collectionService:GetInstanceAddedSignal("block"):Connect(function(v)
+                    if table.find(nukercustom.ObjectList, v.Name) or (nukerluckyblock.Enabled and v.Name:find("lucky")) or (nukerironore.Enabled and v.Name == "iron_ore") then
+                        table.insert(luckyblocktable, v)
+                    end
+                end))
+                table.insert(Nuker.Connections, collectionService:GetInstanceRemovedSignal("block"):Connect(function(v)
+                    if table.find(nukercustom.ObjectList, v.Name) or (nukerluckyblock.Enabled and v.Name:find("lucky")) or (nukerironore.Enabled and v.Name == "iron_ore") then
+                        table.remove(luckyblocktable, table.find(luckyblocktable, v))
+                    end
+                end))
+                task.spawn(function()
+                    repeat
+						if (not nukernofly.Enabled or not GuiLibrary.ObjectsThatCanBeSaved.FlyOptionsButton.Api.Enabled) then
+							local broke = not entityLibrary.isAlive
+							local tool = (not nukerlegit.Enabled) and {Name = "wood_axe"} or store.localHand.tool
+							if nukerbeds.Enabled then
+								for i, obj in pairs(collectionService:GetTagged("bed")) do
+									if broke then break end
+									if obj.Parent ~= nil then
+										if obj:GetAttribute("BedShieldEndTime") then
+											if obj:GetAttribute("BedShieldEndTime") > workspace:GetServerTimeNow() then continue end
+										end
+										if ((entityLibrary.LocalPosition or entityLibrary.character.HumanoidRootPart.Position) - obj.Position).magnitude <= nukerrange.Value then
+											if tool and bedwars.ItemTable[tool.Name].breakBlock and bedwars.BlockController:isBlockBreakable({blockPosition = obj.Position / 3}, lplr) then
+												local res, amount = getBestBreakSide(obj.Position)
+												local res2, amount2 = getBestBreakSide(obj.Position + Vector3.new(0, 0, 3))
+												broke = true
+												bedwars.breakBlock((amount < amount2 and obj.Position or obj.Position + Vector3.new(0, 0, 3)), nukereffects.Enabled, (amount < amount2 and res or res2), false, nukeranimation.Enabled)
+												break
+											end
+										end
+									end
+								end
+							end
+							broke = broke and not entityLibrary.isAlive
+							for i, obj in pairs(luckyblocktable) do
+								if broke then break end
+								if entityLibrary.isAlive then
+									if obj and obj.Parent ~= nil then
+										if ((entityLibrary.LocalPosition or entityLibrary.character.HumanoidRootPart.Position) - obj.Position).magnitude <= nukerrange.Value and (nukerown.Enabled or obj:GetAttribute("PlacedByUserId") ~= lplr.UserId) then
+											if tool and bedwars.ItemTable[tool.Name].breakBlock and bedwars.BlockController:isBlockBreakable({blockPosition = obj.Position / 3}, lplr) then
+												bedwars.breakBlock(obj.Position, nukereffects.Enabled, getBestBreakSide(obj.Position), true, nukeranimation.Enabled)
+												break
+											end
+										end
+									end
+								end
+							end
+						end
+						task.wait()
+                    until (not Nuker.Enabled)
+                end)
+            else
+                luckyblocktable = {}
+            end
 		end,
-		Tooltip = 'Break blocks around you automatically'
+		HoverText = "Automatically destroys beds & luckyblocks around you."
 	})
-	Range = Breaker:CreateSlider({
-		Name = 'Break range',
+	nukerrange = Nuker.CreateSlider({
+		Name = "Break range",
 		Min = 1,
 		Max = 30,
-		Default = 30,
-		Suffix = function(val)
-			return val == 1 and 'stud' or 'studs'
+		Function = function(val) end,
+		Default = 30
+	})
+	nukerlegit = Nuker.CreateToggle({
+		Name = "Hand Check",
+		Function = function() end
+	})
+	nukereffects = Nuker.CreateToggle({
+		Name = "Show HealthBar & Effects",
+		Function = function(callback)
+			if not callback then
+				bedwars.BlockBreaker.healthbarMaid:DoCleaning()
+			end
+		 end,
+		Default = true
+	})
+	nukeranimation = Nuker.CreateToggle({
+		Name = "Break Animation",
+		Function = function() end
+	})
+	nukerown = Nuker.CreateToggle({
+		Name = "Self Break",
+		Function = function() end,
+	})
+    nukerbeds = Nuker.CreateToggle({
+		Name = "Break Beds",
+		Function = function(callback) end,
+		Default = true
+	})
+	nukernofly = Nuker.CreateToggle({
+		Name = "Fly Disable",
+		Function = function() end
+	})
+    nukerluckyblock = Nuker.CreateToggle({
+		Name = "Break LuckyBlocks",
+		Function = function(callback)
+			if callback then
+				luckyblocktable = {}
+				for i,v in pairs(store.blocks) do
+					if table.find(nukercustom.ObjectList, v.Name) or (nukerluckyblock.Enabled and v.Name:find("lucky")) or (nukerironore.Enabled and v.Name == "iron_ore") then
+						table.insert(luckyblocktable, v)
+					end
+				end
+			else
+				luckyblocktable = {}
+			end
+		 end,
+		Default = true
+	})
+	nukerironore = Nuker.CreateToggle({
+		Name = "Break IronOre",
+		Function = function(callback)
+			if callback then
+				luckyblocktable = {}
+				for i,v in pairs(store.blocks) do
+					if table.find(nukercustom.ObjectList, v.Name) or (nukerluckyblock.Enabled and v.Name:find("lucky")) or (nukerironore.Enabled and v.Name == "iron_ore") then
+						table.insert(luckyblocktable, v)
+					end
+				end
+			else
+				luckyblocktable = {}
+			end
 		end
 	})
-	Delay = Breaker:CreateSlider({
-		Name = 'Break Delay',
-		Min = 0,
-		Max = 0.3,
-		Default = 0.25,
-		Decimal = 5,
-		Suffix = function(val)
-			return 's'
-		end
-	})
-	AimSpeed = Breaker:CreateSlider({
-		Name = 'Aim Speed',
-		Min = 1,
-		Max = 20,
-		Default = 20
-	})
-	AimSpeed.Object.Visible = false
-	UpdateRate = Breaker:CreateSlider({
-		Name = 'Update rate',
-		Min = 1,
-		Max = 120,
-		Default = 60,
-		Suffix = 'hz'
-	})
-	Custom = Breaker:CreateTextList({
-		Name = 'Custom',
-		Function = function()
-			if not customlist then return end
-			table.clear(customlist)
-			for _, obj in store.blocks do
-				if table.find(Custom.ListEnabled, obj.Name) then
-					table.insert(customlist, obj)
+	nukercustom = Nuker.CreateTextList({
+		Name = "NukerList",
+		TempText = "block (tesla_trap)",
+		AddFunction = function()
+			luckyblocktable = {}
+			for i,v in pairs(store.blocks) do
+				if table.find(nukercustom.ObjectList, v.Name) or (nukerluckyblock.Enabled and v.Name:find("lucky")) then
+					table.insert(luckyblocktable, v)
 				end
 			end
 		end
-	})
-	Bed = Breaker:CreateToggle({
-		Name = 'Break Bed',
-		Default = true
-	})
-	AutoAim = Breaker:CreateToggle({
-		Name = 'Auto Aim',
-		Function = function(call)
-			AimSpeed.Object.Visible = call
-		end
-	})
-	LuckyBlock = Breaker:CreateToggle({
-		Name = 'Break Lucky Block',
-		Default = true
-	})
-	IronOre = Breaker:CreateToggle({
-		Name = 'Break Iron Ore',
-		Default = true
-	})
-	Effect = Breaker:CreateToggle({
-		Name = 'Show Healthbar & Effects',
-		Function = function(callback)
-			if CustomHealth.Object then
-				CustomHealth.Object.Visible = callback
-			end
-		end,
-		Default = true
-	})
-	CustomHealth = Breaker:CreateToggle({
-		Name = 'Custom Healthbar',
-		Default = true,
-		Darker = true
-	})
-	Animation = Breaker:CreateToggle({Name = 'Animation'})
-	SelfBreak = Breaker:CreateToggle({Name = 'Self Break'})
-	WallCheck = Breaker:CreateToggle({Name = 'Wall Check'})
-	Cache = Breaker:CreateToggle({Name = 'Break through block'})
-	AutoTool = Breaker:CreateToggle({Name = 'Auto Tool'})
-	LimitItem = Breaker:CreateToggle({
-		Name = 'Limit to items',
-		Tooltip = 'Only breaks when tools are held'
 	})
 end)
 	
