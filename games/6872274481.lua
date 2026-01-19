@@ -2599,7 +2599,7 @@ run(function()
 			if store.hand.toolType ~= 'sword' or bedwars.DaoController.chargingMaid then return false end
 		end
 
-		if SwingOnly.Enabled then
+		if LegitAura.Enabled then
 			if (tick() - bedwars.SwordController.lastSwing) > 0.15 then return false end
 		end
 
@@ -2645,7 +2645,7 @@ run(function()
 								started = true
 
 								if AnimationMode.Value == 'Random' then
-									anims.Random = {{CFrame = CFrame.Angles(math.rad(math.random(1, 360)), math.rad(math.random(1, 360)), math.rad(math.random(1, 360))), Time = 0.12}}
+									anims.Random = {{CFrame = CFrame.Angles(math.rad(math.random(1, 360)), math.rad(math.random(1, 360)), math.rad(math.random(1, 360))), Time = 0}}
 								end
 
 								for _, v in anims[AnimationMode.Value] do
@@ -2708,7 +2708,7 @@ run(function()
 									Attacking = true
 									store.KillauraTarget = v
 									if not Swing.Enabled and AnimDelay < tick() and not LegitAura.Enabled then
-										AnimDelay = tick() + (meta.sword.respectAttackSpeedForEffects and meta.sword.attackSpeed or math.max(ChargeTime.Value, 0.11))
+										AnimDelay = tick() + (meta.sword.respectAttackSpeedForEffects and meta.sword.attackSpeed or math.max(ChargeTime.Value, 0))
 										bedwars.SwordController:playSwordEffect(meta, false)
 										if meta.displayName:find(' Scythe') then
 											bedwars.ScytheController:playLocalAnimation()
@@ -2721,18 +2721,18 @@ run(function()
 								end
 
 								if delta.Magnitude > AttackRange.Value then continue end
-								if delta.Magnitude < 14.4 and (tick() - swingCooldown) < math.max(ChargeTime.Value, 0) then continue end
+								if delta.Magnitude < 14.4 and (tick() - swingCooldown) < math.max(ChargeTime.Value, 0.02) then continue end
 
 								local actualRoot = v.Character.PrimaryPart
 								if actualRoot then
 									local dir = CFrame.lookAt(selfpos, actualRoot.Position).LookVector
-									local pos = selfpos + dir * math.max(delta.Magnitude - 14.600, 0)
+									local pos = selfpos + dir * math.max(delta.Magnitude - 14.399, 0)
 									swingCooldown = tick()
 									bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
 									store.attackReach = (delta.Magnitude * 100) // 1 / 100
 									store.attackReachUpdate = tick() + 1
 
-									if delta.Magnitude < 14.4 and ChargeTime.Value > 0 then
+									if delta.Magnitude < 14.4 and ChargeTime.Value > 0.11 then
 										AnimDelay = tick()
 									end
 
@@ -2833,8 +2833,8 @@ run(function()
 	ChargeTime = Killaura:CreateSlider({
 		Name = 'Swing time',
 		Min = 0,
-		Max = 1,
-		Default = 0,
+		Max = 0.5,
+		Default = 0.42,
 		Decimal = 100
 	})
 	AngleSlider = Killaura:CreateSlider({
@@ -2847,14 +2847,14 @@ run(function()
 		Name = 'Update rate',
 		Min = 1,
 		Max = 450,
-		Default = 450,
+		Default = 60,
 		Suffix = 'hz'
 	})
 	MaxTargets = Killaura:CreateSlider({
 		Name = 'Max targets',
 		Min = 1,
-		Max = 8,
-		Default = 8
+		Max = 5,
+		Default = 5
 	})
 	Sort = Killaura:CreateDropdown({
 		Name = 'Target Mode',
@@ -3042,7 +3042,7 @@ run(function()
 		Tooltip = 'Only attacks when the sword is held'
 	})
 	LegitAura = Killaura:CreateToggle({
-		Name = 'Legit Aura',
+		Name = 'Swing only',
 		Tooltip = 'Only attacks while swinging manually'
 	})
 end)
