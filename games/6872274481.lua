@@ -1897,7 +1897,46 @@ run(function()
 		Tooltip = 'Only works in first person mode'
 	})
 end)
-								
+											
+run(function()
+	local FastBow
+	local old
+	local oldShootProp = {}
+	FastBow = vape.Categories.Blatant:CreateModule({
+		Name = 'FastBow',
+		Function = function(callback)
+			if callback then
+				old = bedwars.CooldownController.setOnCooldown
+				bedwars.CooldownController.setOnCooldown = function(self, cooldownId, duration, options, ...)
+					if (tostring(cooldownId):find("proj-source") or tostring(cooldownId):find("bow") or tostring(cooldownId):find("crossbow") or tostring(cooldownId):find("headhunter")) then
+						duration = 0.45
+					end
+					return old(self, cooldownId, duration, options, ...)
+				end
+				
+				for _, item in pairs(bedwars.ItemMeta) do
+					if item.projectileSource then
+						oldShootProp[item.projectileSource] = item.projectileSource.fireDelaySec
+						item.projectileSource.fireDelaySec = 0.75
+					end
+				end
+			else
+				bedwars.CooldownController.setOnCooldown = old
+				
+				for _, item in pairs(bedwars.ItemMeta) do
+					if item.projectileSource then
+						local originalDelay = oldShootProp[item.projectileSource]
+						item.projectileSource.fireDelaySec = originalDelay
+						oldShootProp[item.projectileSource] = nil
+					end
+				end
+				old = nil
+			end
+		end,
+		Tooltip = 'Makes your projectiles shoot out faster(ty aero for the idea)'
+	})
+end)
+												
 run(function()
 	local Sprint
 	local old
