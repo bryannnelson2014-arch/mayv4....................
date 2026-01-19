@@ -2368,7 +2368,7 @@ run(function()
 	local AnimationSpeed
 	local AnimationTween
 	local Limit
-	local Swing Only = {}
+	local SwingOnly = {}
 	local Particles, Boxes = {}, {}
 	local anims, AnimDelay, AnimTween, armC0 = vape.Libraries.auraanims, tick()
 	local AttackRemote = {FireServer = function() end}
@@ -2393,7 +2393,7 @@ run(function()
 			if store.hand.toolType ~= 'sword' or bedwars.DaoController.chargingMaid then return false end
 		end
 
-		if Swing Only.Enabled then
+		if SwingOnly.Enabled then
 			if (tick() - bedwars.SwordController.lastSwing) > 0.15 then return false end
 		end
 
