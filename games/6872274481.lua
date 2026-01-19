@@ -2774,7 +2774,7 @@ run(function()
 					end
 
 					--#attacked > 0 and #attacked * 0.02 or
-					task.wait(0.7 / UpdateRate.Value)
+					task.wait(1 / UpdateRate.Value)
 				until not Killaura.Enabled
 			else
 				store.KillauraTarget = nil
@@ -2833,7 +2833,7 @@ run(function()
 	ChargeTime = Killaura:CreateSlider({
 		Name = 'Swing time',
 		Min = 0,
-		Max = 3,
+		Max = 1,
 		Default = 0,
 		Decimal = 100
 	})
