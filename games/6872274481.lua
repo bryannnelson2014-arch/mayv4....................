@@ -2574,7 +2574,7 @@ run(function()
 	local AnimationSpeed
 	local AnimationTween
 	local Limit
-	local SwingOnly = {}
+	local LegitAura = {}
 	local Particles, Boxes = {}, {}
 	local anims, AnimDelay, AnimTween, armC0 = vape.Libraries.auraanims, tick()
 	local AttackRemote = {FireServer = function() end}
@@ -2774,7 +2774,7 @@ run(function()
 					end
 
 					--#attacked > 0 and #attacked * 0.02 or
-					task.wait(1 / UpdateRate.Value)
+					task.wait(0.7 / UpdateRate.Value)
 				until not Killaura.Enabled
 			else
 				store.KillauraTarget = nil
@@ -3042,7 +3042,7 @@ run(function()
 		Tooltip = 'Only attacks when the sword is held'
 	})
 	LegitAura = Killaura:CreateToggle({
-		Name = 'Swing only',
+		Name = 'Legit Aura',
 		Tooltip = 'Only attacks while swinging manually'
 	})
 end)
