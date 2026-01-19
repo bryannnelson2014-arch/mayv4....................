@@ -1936,7 +1936,52 @@ run(function()
 		Tooltip = 'Sets your sprinting to true.'
 	})
 end)
+												
+run(function()
+	local BetterCait
 	
+	BetterCait = vape.Categories.Support:CreateModule({
+		Name = 'BetterCaitlyn',
+		Function = function(callback)
+			if store.equippedKit ~= "blood_assassin" then
+				vape:CreateNotification("BetterCaitlyn","Kit required only!",8,"warning")
+				return
+			end
+			local hitPlayers = {} 
+				
+			BetterCait:Clean(vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
+				if not entitylib.isAlive then return end
+					
+				local attacker = playersService:GetPlayerFromCharacter(damageTable.fromEntity)
+				local victim = playersService:GetPlayerFromCharacter(damageTable.entityInstance)
+				
+				if attacker == lplr and victim and victim ~= lplr then
+					hitPlayers[victim] = true
+						
+					local storeState = bedwars.Store:getState()
+					local activeContract = storeState.Kit.activeContract
+					local availableContracts = storeState.Kit.availableContracts or {}
+						
+					if not activeContract then
+						for _, contract in availableContracts do
+							if contract.target == victim then
+								bedwars.Client:Get('BloodAssassinSelectContract'):SendToServer({
+									contractId = contract.id
+								})
+								break
+							end
+						end
+					end
+				end
+			end))
+			repeat task.wait(0.01) until not entitylib.isAlive or not BetterCait.Enabled
+			table.clear(hitPlayers)
+		end,
+		Tooltip = 'Makes you look better with caitlyn'
+	})
+	
+end)
+													
 run(function()
 	local TriggerBot
 	local CPS
