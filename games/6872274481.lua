@@ -2368,7 +2368,7 @@ run(function()
 	local AnimationSpeed
 	local AnimationTween
 	local Limit
-	local LegitAura = {}
+	local Swing Only = {}
 	local Particles, Boxes = {}, {}
 	local anims, AnimDelay, AnimTween, armC0 = vape.Libraries.auraanims, tick()
 	local AttackRemote = {FireServer = function() end}
@@ -2393,7 +2393,7 @@ run(function()
 			if store.hand.toolType ~= 'sword' or bedwars.DaoController.chargingMaid then return false end
 		end
 
-		if LegitAura.Enabled then
+		if Swing Only.Enabled then
 			if (tick() - bedwars.SwordController.lastSwing) > 0.15 then return false end
 		end
 
@@ -2520,13 +2520,13 @@ run(function()
 								local actualRoot = v.Character.PrimaryPart
 								if actualRoot then
 									local dir = CFrame.lookAt(selfpos, actualRoot.Position).LookVector
-									local pos = selfpos + dir * math.max(delta.Magnitude - 14.399, 0)
+									local pos = selfpos + dir * math.max(delta.Magnitude - 14.350, 0)
 									swingCooldown = tick()
 									bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
 									store.attackReach = (delta.Magnitude * 100) // 1 / 100
 									store.attackReachUpdate = tick() + 1
 
-									if delta.Magnitude < 14.4 and ChargeTime.Value > 0.05 then
+									if delta.Magnitude < 14.4 and ChargeTime.Value > 0 then
 										AnimDelay = tick()
 									end
 
@@ -2609,8 +2609,8 @@ run(function()
 	SwingRange = Killaura:CreateSlider({
 		Name = 'Swing range',
 		Min = 1,
-		Max = 37,
-		Default = 37,
+		Max = 18,
+		Default = 18,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
 		end
@@ -2618,8 +2618,8 @@ run(function()
 	AttackRange = Killaura:CreateSlider({
 		Name = 'Attack range',
 		Min = 1,
-		Max = 37,
-		Default = 37,
+		Max = 18,
+		Default = 18,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
 		end
@@ -2627,7 +2627,7 @@ run(function()
 	ChargeTime = Killaura:CreateSlider({
 		Name = 'Swing time',
 		Min = 0,
-		Max = 0.1,
+		Max = 0,
 		Default = 0.42,
 		Decimal = 100
 	})
@@ -2640,15 +2640,15 @@ run(function()
 	UpdateRate = Killaura:CreateSlider({
 		Name = 'Update rate',
 		Min = 1,
-		Max = 390,
-		Default = 360,
+		Max = 450,
+		Default = 450,
 		Suffix = 'hz'
 	})
 	MaxTargets = Killaura:CreateSlider({
 		Name = 'Max targets',
 		Min = 1,
-		Max = 5,
-		Default = 5
+		Max = 8,
+		Default = 8
 	})
 	Sort = Killaura:CreateDropdown({
 		Name = 'Target Mode',
