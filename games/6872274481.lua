@@ -2833,7 +2833,7 @@ run(function()
 	ChargeTime = Killaura:CreateSlider({
 		Name = 'Swing time',
 		Min = 0,
-		Max = 0,
+		Max = 3,
 		Default = 0,
 		Decimal = 100
 	})
