@@ -1940,7 +1940,7 @@ end)
 run(function()
 	local BetterCait
 	
-	BetterCait = vape.Categories.Support:CreateModule({
+	BetterCait = vape.Categories.BetterKit:CreateModule({
 		Name = 'BetterCaitlyn',
 		Function = function(callback)
 			if store.equippedKit ~= "blood_assassin" then
