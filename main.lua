@@ -2,7 +2,7 @@ repeat task.wait() until game:IsLoaded()
 if shared.vape then shared.vape:Uninject() end
 
 -- why do exploits fail to implement anything correctly? Is it really that hard?
--- wave and volt suck ass (spec was here)
+-- wave and volt suck ass
 if identifyexecutor then
 	if table.find({'Argon', 'Volt', 'Wave'}, ({identifyexecutor()})[1]) then
 		getgenv().setthreadidentity = nil
@@ -32,7 +32,7 @@ local playersService = cloneref(game:GetService('Players'))
 local function downloadFile(path, func)
 	if not isfile(path) then
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/Wyroke/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/Wyroie/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
